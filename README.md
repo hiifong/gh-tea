@@ -73,6 +73,6 @@ Run
 gh tea ...
 ```
 
-⚙️ Configuring
+## ⚙️ Configuring
 
-⌨️ Keybindings
+## ⌨️ Keybindings
