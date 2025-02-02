@@ -135,7 +135,9 @@ func initConfig() {
 				_, err = os.OpenFile(cfgFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 				pkgErr.Check(err)
 				viper.SetDefault("tea", config.Tea{
-					config.Default: config.TeaItem{},
+					config.Default: config.TeaItem{
+						User: map[config.Username]config.UserItem{},
+					},
 				})
 				log.Debugf("using config file: %s", cfgFile)
 				err = viper.WriteConfigAs(cfgFile)

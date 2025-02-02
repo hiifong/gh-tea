@@ -19,9 +19,9 @@ type (
 
 	TeaName string
 	TeaItem struct {
-		Name string
-		Host string `yaml:"host"`
-		User User   `yaml:"user"`
+		Name string `yaml:"name"`
+		Host string `yaml:"host,omitempty"`
+		User User   `yaml:"user,omitempty"`
 	}
 	Tea map[TeaName]TeaItem
 )
@@ -32,8 +32,8 @@ var (
 	GiteaOAuth2 = oauth2.Config{
 		ClientID: "9c0c7633-de85-4b51-938b-9fabc8cb7099",
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://gitea.com/login/oauth/authorize",
-			TokenURL: "https://gitea.com/login/oauth/access_token",
+			AuthURL:  "%s/login/oauth/authorize",
+			TokenURL: "%s/login/oauth/access_token",
 		},
 	}
 )
@@ -46,7 +46,8 @@ func (t TeaItem) String() string {
 	return fmt.Sprintf(`
 	Name: %s
 	Host: %s
-`, t.Name, t.Host)
+	User: %+v
+`, t.Name, t.Host, t.User)
 }
 
 func (t Tea) String() string {
