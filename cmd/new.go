@@ -23,6 +23,8 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
@@ -40,6 +42,9 @@ Please use gh tea new <name> <URL> instead`)
 		}
 		name := args[0]
 		url := args[1]
+		if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+			log.Fatal("URL must start with http:// or https://")
+		}
 		log.Debugf("new %s %s", name, url)
 	},
 }
