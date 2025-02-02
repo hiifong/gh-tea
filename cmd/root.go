@@ -41,9 +41,19 @@ import (
 var (
 	cfgFile string
 	cfg     config.Config
+	use     string
 	debug   bool
 
 	err error
+
+	// rootCmd represents the base command when called without any subcommands
+	rootCmd = &cobra.Command{
+		Use:   "gh tea",
+		Short: "A brief description of your application",
+		// Uncomment the following line if your bare application
+		// has an action associated with it:
+		Run: rootRun,
+	}
 )
 
 func init() {
@@ -62,6 +72,13 @@ func init() {
 		fmt.Sprintf("config file (default is %s)", defaultCfgFile),
 	)
 
+	rootCmd.PersistentFlags().StringVar(
+		&use,
+		"use",
+		"",
+		"choose a gitea",
+	)
+
 	rootCmd.PersistentFlags().BoolVarP(
 		&debug,
 		"debug",
@@ -69,15 +86,6 @@ func init() {
 		false,
 		"enable debug mode",
 	)
-}
-
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "gh tea",
-	Short: "A brief description of your application",
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	Run: rootRun,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -166,4 +174,16 @@ func rootRun(cmd *cobra.Command, args []string) {
 	err = client.Get("user", &response)
 	pkgErr.Check(err)
 	log.Infof("running as %s", response.Login)
+
+	var repos []struct {
+		Name        string
+		Private     bool
+		Description string
+		CloneURL    string `json:"clone_url"`
+		Topics      []string
+		Visibility  string
+	}
+	err = client.Get(fmt.Sprintf("users/%s/repos?sort=updated&per_page=10", response.Login), &repos)
+	pkgErr.Check(err)
+	log.Infof("repos: \n%+v", repos)
 }
