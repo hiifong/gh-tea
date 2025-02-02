@@ -25,29 +25,47 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/charmbracelet/log"
+	"github.com/hiifong/gh-tea/config"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCmd.AddCommand(defaultCmd)
+}
 
 // defaultCmd represents the default command
 var defaultCmd = &cobra.Command{
 	Use:   "default",
 	Short: "Use the <name> as a default gitea host",
 	Long:  `gh tea default <name>, like nvm alias default 8.1.0 command`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("default called")
-	},
+	Run:   defaultRun,
 }
 
-func init() {
-	rootCmd.AddCommand(defaultCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// defaultCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// defaultCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func defaultRun(cmd *cobra.Command, args []string) {
+	if len(args) == 0 {
+		if v, ok := cfg.Tea[config.Default]; ok {
+			if v.Name != "" {
+				if v, ok = cfg.Tea[config.Default]; ok {
+					fmt.Printf("default: %+v\n", v)
+				}
+			}
+			return
+		} else {
+			log.Fatalf("%s not exist", config.Default)
+		}
+	}
+	if len(args) != 1 {
+		log.Fatal(`incorrect parameters, Please use gh tea default [name] instead`)
+	}
+	name := args[0]
+	v, ok := cfg.Tea[config.TeaName(name)]
+	if !ok {
+		log.Fatal(`no such tea name:"` + name + `"`)
+	}
+	if v.Name == "" {
+		log.Fatal("no name specified")
+	}
+	cfg.Tea[config.Default] = v
+	config.WriteConfig(cfg.Tea)
 }

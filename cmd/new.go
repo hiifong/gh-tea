@@ -26,39 +26,37 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/hiifong/gh-tea/config"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCmd.AddCommand(newCmd)
+}
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
 	Use:   "new",
-	Short: "New a gitea host named <name> for the gitea at <URL>",
-	Long:  `usage: gh tea new <name> <URL>, this command like git remote add <name> <URL> command`,
-	Run: func(cmd *cobra.Command, args []string) {
-		log.Debug("new called")
-		if len(args) != 2 {
-			log.Fatal(`incorrect parameters, the new command only requires name and url parameters,
-Please use gh tea new <name> <URL> instead`)
-		}
-		name := args[0]
-		url := args[1]
-		if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
-			log.Fatal("URL must start with http:// or https://")
-		}
-		log.Debugf("new %s %s", name, url)
-	},
+	Short: "New a gitea host named <name> for the gitea at <Host>",
+	Long:  `usage: gh tea new <name> <Host>, this command like git remote add <name> <Host> command`,
+	Run:   newRun,
 }
 
-func init() {
-	rootCmd.AddCommand(newCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// newCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// newCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func newRun(cmd *cobra.Command, args []string) {
+	if len(args) != 2 {
+		log.Fatal(`incorrect parameters, the new command only requires name and url parameters,
+Please use gh tea new <name> <Host> instead`)
+	}
+	name := args[0]
+	url := args[1]
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		log.Fatal("Host must start with http:// or https://")
+	}
+	log.Debugf("new %s %s", name, url)
+	cfg.Tea[config.TeaName(name)] = config.TeaItem{
+		Name: name,
+		Host: url,
+	}
+	log.Infof("tea: %+v", cfg)
+	config.WriteConfig(cfg.Tea)
 }

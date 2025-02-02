@@ -23,31 +23,36 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/charmbracelet/log"
+	"github.com/hiifong/gh-tea/config"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCmd.AddCommand(removeCmd)
+}
 
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
 	Use:   "remove",
 	Short: "remove a host",
 	Long:  `Usage: gh tes remove <host>, remove a <host> from the list`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("remove called")
-	},
+	Run:   removeRun,
 }
 
-func init() {
-	rootCmd.AddCommand(removeCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// removeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// removeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func removeRun(cmd *cobra.Command, args []string) {
+	if len(args) != 1 {
+		log.Fatal(`incorrect parameters, Please use gh tea remove [name] instead`)
+	}
+	name := args[0]
+	if _, ok := cfg.Tea[config.TeaName(name)]; !ok {
+		log.Fatalf("%s not exist", name)
+	}
+	if v, ok := cfg.Tea[config.Default]; ok {
+		if v.Name == name {
+			log.Fatal("can't remove default name")
+		}
+	}
+	delete(cfg.Tea, config.TeaName(name))
+	config.WriteConfig(cfg.Tea)
 }
