@@ -30,7 +30,7 @@ var (
 	Default TeaName = "default"
 
 	GiteaOAuth2 = oauth2.Config{
-		ClientID: "9c0c7633-de85-4b51-938b-9fabc8cb7099",
+		ClientID: "d57cb8c4-630c-4168-8324-ec79935e18d4",
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "%s/login/oauth/authorize",
 			TokenURL: "%s/login/oauth/access_token",
