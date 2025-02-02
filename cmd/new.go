@@ -23,8 +23,7 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +33,14 @@ var newCmd = &cobra.Command{
 	Short: "New a gitea host named <name> for the gitea at <URL>",
 	Long:  `usage: gh tea new <name> <URL>, this command like git remote add <name> <URL> command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("new called")
+		log.Debug("new called")
+		if len(args) != 2 {
+			log.Fatal(`incorrect parameters, the new command only requires name and url parameters,
+Please use gh tea new <name> <URL> instead`)
+		}
+		name := args[0]
+		url := args[1]
+		log.Debugf("new %s %s", name, url)
 	},
 }
 

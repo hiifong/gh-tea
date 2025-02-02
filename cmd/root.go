@@ -23,42 +23,37 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	debug   bool
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gh tea",
 	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(_ *cobra.Command, args []string) {
-		fmt.Println("hi world, this is the gh-tea extension!")
+		log.Info("hi world, this is the gh-tea extension!")
 		client, err := api.DefaultRESTClient()
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
 		response := struct{ Login string }{}
 		err = client.Get("user", &response)
 		if err != nil {
-			fmt.Println(err)
-			return
+			log.Fatal(err)
 		}
-		fmt.Printf("running as %s\n", response.Login)
+		log.Infof("running as %s", response.Login)
 	},
 }
 
@@ -73,16 +68,26 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initLog)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gh-tea.yaml)")
+	rootCmd.PersistentFlags().StringVar(
+		&cfgFile,
+		"config",
+		"",
+		"config file (default is $HOME/.gh-tea.yaml)",
+	)
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolVarP(
+		&debug,
+		"debug",
+		"d",
+		false,
+		"enable debug mode",
+	)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -105,6 +110,17 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		log.Debug("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+func initLog() {
+	log.SetPrefix("[Tea]")
+	if debug {
+		log.SetLevel(log.DebugLevel)
+		log.SetPrefix("[Tea debug]")
+	} else {
+		log.SetOutput(os.Stderr)
+		log.SetLevel(log.InfoLevel)
 	}
 }
