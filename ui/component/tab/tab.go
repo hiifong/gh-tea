@@ -1,4 +1,4 @@
-package tabs
+package tab
 
 import (
 	"strings"
@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/hiifong/gh-tea/ui/keys"
+	tkey "github.com/hiifong/gh-tea/ui/key"
 )
 
 type Model struct {
@@ -33,10 +33,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, keys.DefaultKeyMap.Right, keys.DefaultKeyMap.Tab, keys.DefaultKeyMap.Down):
+		case key.Matches(msg, tkey.Default.Right, tkey.Default.Tab, tkey.Default.Down):
 			m.activeTab = min(m.activeTab+1, len(m.Tabs)-1)
 			return m, nil
-		case key.Matches(msg, keys.DefaultKeyMap.Left, keys.DefaultKeyMap.ShiftTab, keys.DefaultKeyMap.Up):
+		case key.Matches(msg, tkey.Default.Left, tkey.Default.ShiftTab, tkey.Default.Up):
 			m.activeTab = max(m.activeTab-1, 0)
 			return m, nil
 		}

@@ -4,19 +4,19 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/hiifong/gh-tea/ui/components/tabs"
-	"github.com/hiifong/gh-tea/ui/keys"
+	"github.com/hiifong/gh-tea/ui/component/tab"
+	tkey "github.com/hiifong/gh-tea/ui/key"
 )
 
 type Model struct {
-	keys *keys.KeyMap
+	keys *tkey.Map
 	Tab  tea.Model
 }
 
 func New() Model {
 	return Model{
-		keys: keys.DefaultKeyMap,
-		Tab:  tabs.New(),
+		keys: tkey.Default,
+		Tab:  tab.New(),
 	}
 }
 
@@ -35,7 +35,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, keys.DefaultKeyMap.Quit):
+		case key.Matches(msg, tkey.Default.Quit):
 			return m, tea.Quit
 		}
 		m.Tab, tabsCmd = m.Tab.Update(msg)

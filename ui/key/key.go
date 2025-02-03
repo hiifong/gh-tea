@@ -1,8 +1,8 @@
-package keys
+package key
 
 import "github.com/charmbracelet/bubbles/key"
 
-type KeyMap struct {
+type Map struct {
 	Up       key.Binding
 	Down     key.Binding
 	Left     key.Binding
@@ -18,7 +18,7 @@ type KeyMap struct {
 	Quit key.Binding
 }
 
-var DefaultKeyMap = &KeyMap{
+var Default = &Map{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
 		key.WithHelp("↑/k", "move up"),
