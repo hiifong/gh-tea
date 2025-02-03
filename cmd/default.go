@@ -26,8 +26,9 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/log"
-	"github.com/hiifong/gh-tea/config"
 	"github.com/spf13/cobra"
+
+	"github.com/hiifong/gh-tea/config"
 )
 
 func init() {

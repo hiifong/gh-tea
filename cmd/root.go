@@ -31,11 +31,12 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/cli/go-gh/v2/pkg/api"
-	"github.com/hiifong/gh-tea/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/hiifong/gh-tea/config"
 	pkgErr "github.com/hiifong/gh-tea/pkg/errors"
+	"github.com/hiifong/gh-tea/ui"
 )
 
 var (
@@ -52,7 +53,8 @@ var (
 		Short: "A brief description of your application",
 		// Uncomment the following line if your bare application
 		// has an action associated with it:
-		Run: rootRun,
+		PreRun: preRun,
+		Run:    rootRun,
 	}
 )
 
@@ -166,7 +168,7 @@ func initLog() {
 	}
 }
 
-func rootRun(cmd *cobra.Command, args []string) {
+func preRun(cmd *cobra.Command, args []string) {
 	log.Info("hi world, this is the gh-tea extension!")
 	client, err := api.DefaultRESTClient()
 	if err != nil {
@@ -188,4 +190,11 @@ func rootRun(cmd *cobra.Command, args []string) {
 	err = client.Get(fmt.Sprintf("users/%s/repos?sort=updated&per_page=10", response.Login), &repos)
 	pkgErr.Check(err)
 	log.Infof("repos: \n%+v", repos)
+}
+
+func rootRun(cmd *cobra.Command, args []string) {
+	err = ui.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
