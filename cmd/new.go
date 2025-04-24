@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hiifong/gh-tea/pkg/config"
+	"github.com/hiifong/gh-tea/pkg/global"
 )
 
 func init() {
@@ -58,6 +59,6 @@ Please use gh tea new <name> <Host> instead`)
 		Name: name,
 		Host: url,
 	}
-	log.Infof("tea: %+v", cfg)
+	global.Printf("tea: %v", cfg.Tea)
 	config.WriteConfig(cfg.Tea)
 }

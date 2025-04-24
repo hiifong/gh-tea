@@ -35,6 +35,7 @@ import (
 	"code.gitea.io/sdk/gitea"
 	"github.com/charmbracelet/log"
 	"github.com/hiifong/gh-tea/pkg/config"
+	"github.com/hiifong/gh-tea/pkg/global"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
@@ -110,7 +111,7 @@ func loginRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Infof("token: %+v", token)
+	log.Debugf("token: %+v", token)
 	client, err := gitea.NewClient(v.Host, gitea.SetToken(token.AccessToken))
 	if err != nil {
 		log.Fatal(err)
@@ -119,7 +120,7 @@ func loginRun(cmd *cobra.Command, args []string) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Fatal(err)
 	}
-	log.Infof("info: %+v", info)
+	log.Debugf("info: %+v", info)
 	v.Token = token
 	if isDefault {
 		cfg.Tea[config.TeaName(v.Name)] = v
@@ -127,7 +128,7 @@ func loginRun(cmd *cobra.Command, args []string) {
 		cfg.Tea[config.TeaName(use)] = v
 	}
 	config.WriteConfig(cfg.Tea)
-	log.Infof("Successfully logged in: %s", info.UserName)
+	global.Printf("Successfully logged in: %s", info.UserName)
 }
 
 func logoutRun(cmd *cobra.Command, args []string) {

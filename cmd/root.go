@@ -38,6 +38,7 @@ import (
 
 	"github.com/hiifong/gh-tea/pkg/config"
 	pkgErr "github.com/hiifong/gh-tea/pkg/errors"
+	"github.com/hiifong/gh-tea/pkg/global"
 	"github.com/hiifong/gh-tea/ui"
 )
 
@@ -48,8 +49,7 @@ var (
 	debug   bool
 
 	home string
-
-	err error
+	err  error
 
 	rootCmd = &cobra.Command{
 		Use:    "gh tea",
@@ -147,7 +147,6 @@ func initConfig() {
 }
 
 func initLog() {
-	var writer io.Writer
 	file := &lumberjack.Logger{
 		Filename:   path.Join(home, "gh-tea.log"),
 		MaxSize:    100,
@@ -156,13 +155,12 @@ func initLog() {
 		LocalTime:  true,
 		Compress:   true,
 	}
-	writer = file
+	global.Writer = io.MultiWriter(file, os.Stdout)
 	level := log.InfoLevel
 	if debug {
-		writer = io.MultiWriter(os.Stdout, file)
 		level = log.DebugLevel
 	}
-	logger := log.NewWithOptions(writer, log.Options{
+	logger := log.NewWithOptions(global.Writer, log.Options{
 		Prefix:       "[Tea]",
 		ReportCaller: true,
 		Level:        level,
