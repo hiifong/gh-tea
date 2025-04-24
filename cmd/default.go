@@ -28,14 +28,13 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 
-	"github.com/hiifong/gh-tea/config"
+	"github.com/hiifong/gh-tea/pkg/config"
 )
 
 func init() {
 	rootCmd.AddCommand(defaultCmd)
 }
 
-// defaultCmd represents the default command
 var defaultCmd = &cobra.Command{
 	Use:   "default",
 	Short: "Use the <name> as a default gitea host",

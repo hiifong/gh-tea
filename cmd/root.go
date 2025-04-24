@@ -25,6 +25,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -33,8 +34,9 @@ import (
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/natefinch/lumberjack.v2"
 
-	"github.com/hiifong/gh-tea/config"
+	"github.com/hiifong/gh-tea/pkg/config"
 	pkgErr "github.com/hiifong/gh-tea/pkg/errors"
 	"github.com/hiifong/gh-tea/ui"
 )
@@ -45,26 +47,31 @@ var (
 	use     string
 	debug   bool
 
+	home string
+
 	err error
 
-	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
-		Use:   "gh tea",
-		Short: "A brief description of your application",
-		// Uncomment the following line if your bare application
-		// has an action associated with it:
+		Use:    "gh tea",
+		Short:  "A brief description of your application",
 		PreRun: preRun,
 		Run:    rootRun,
 	}
 )
 
 func init() {
+	home, err = os.UserHomeDir()
+	pkgErr.Check(err)
+	home = path.Join(home, ".config/gh-tea")
+	if _, err = os.Stat(home); os.IsNotExist(err) {
+		err = os.MkdirAll(home, os.ModePerm)
+		pkgErr.Check(err)
+	}
+
 	cobra.OnInitialize(initLog)
 	cobra.OnInitialize(initConfig)
 
-	defaultCfgFile, err := os.UserHomeDir()
-	pkgErr.Check(err)
-	defaultCfgFile = path.Join(defaultCfgFile, ".config/gh-tea/config.yaml")
+	defaultCfgFile := path.Join(home, "config.yaml")
 
 	rootCmd.PersistentFlags().StringVarP(
 		&cfgFile,
@@ -90,8 +97,6 @@ func init() {
 	)
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err = rootCmd.Execute()
 	if err != nil {
@@ -99,39 +104,23 @@ func Execute() {
 	}
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		pkgErr.Check(err)
-		home = path.Join(home, ".config/gh-tea")
-		if _, err = os.Stat(home); os.IsNotExist(err) {
-			err = os.MkdirAll(home, os.ModePerm)
-			pkgErr.Check(err)
-		}
-		// Search config in home directory with name ".gh-tea" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
 		viper.SetConfigName("config")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
-
+	viper.AutomaticEnv()
 	viper.SetEnvPrefix("TEA")
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
 
-	// If a config file is found, read it in.
 	if err = viper.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) && cfgFile == "" {
-			home, err := os.UserHomeDir()
-			pkgErr.Check(err)
-			home = path.Join(home, ".config/gh-tea")
 			cfgFile = path.Join(home, "config.yaml")
 			if _, err = os.Stat(cfgFile); os.IsNotExist(err) {
 				_, err = os.OpenFile(cfgFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
@@ -157,15 +146,27 @@ func initConfig() {
 }
 
 func initLog() {
-	log.SetReportCaller(true)
-	log.SetPrefix("[Tea]")
-	if debug {
-		log.SetLevel(log.DebugLevel)
-		log.SetPrefix("[Tea debug]")
-	} else {
-		log.SetOutput(os.Stderr)
-		log.SetLevel(log.InfoLevel)
+	var writer io.Writer
+	file := &lumberjack.Logger{
+		Filename:   path.Join(home, "gh-tea.log"),
+		MaxSize:    100,
+		MaxAge:     30,
+		MaxBackups: 10,
+		LocalTime:  true,
+		Compress:   true,
 	}
+	writer = file
+	level := log.InfoLevel
+	if debug {
+		writer = io.MultiWriter(os.Stdout, file)
+		level = log.DebugLevel
+	}
+	logger := log.NewWithOptions(writer, log.Options{
+		Prefix:       "[Tea]",
+		ReportCaller: true,
+		Level:        level,
+	})
+	log.SetDefault(logger)
 }
 
 func preRun(cmd *cobra.Command, args []string) {

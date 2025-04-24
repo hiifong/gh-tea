@@ -37,7 +37,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 
-	"github.com/hiifong/gh-tea/config"
+	"github.com/hiifong/gh-tea/pkg/config"
 )
 
 func init() {
@@ -49,7 +49,6 @@ func init() {
 }
 
 var (
-	// authCmd represents the auth command
 	authCmd = &cobra.Command{
 		Use:   "auth",
 		Short: "Authenticate gh-tea with Gitea",
@@ -126,7 +125,6 @@ func loginRun(cmd *cobra.Command, args []string) {
 	v.User[config.Username(info.UserName)] = token
 	if isDefault {
 		cfg.Tea[config.TeaName(v.Name)] = v
-
 	} else {
 		cfg.Tea[config.TeaName(use)] = v
 	}
@@ -148,7 +146,7 @@ var template string = `<!DOCTYPE html>
 	<title>gh-tea</title>
 </head>
 <body>
-<p>Success. You may close this page and return to gh.</p>
+<p>Success. You may close this page and return to gh or gh-tea.</p>
 <p style="font-style: italic">&mdash;<a href="https://github.com/hiifong/gh-tea">gh-tea</a></p>
 </body>
 </html>`

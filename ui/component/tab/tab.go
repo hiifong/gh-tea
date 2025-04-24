@@ -17,8 +17,8 @@ type Model struct {
 }
 
 func New() Model {
-	tabs := []string{"All", "Public", "Private"}
-	tabContent := []string{"All Repositories", "Public Repositories", "Private Repositories"}
+	tabs := []string{"All", "Public", "Private", "Forked", "Stared"}
+	tabContent := []string{"All Repositories", "Public Repositories", "Private Repositories", "Forked", "Stared"}
 	return Model{
 		Tabs:       tabs,
 		TabContent: tabContent,
