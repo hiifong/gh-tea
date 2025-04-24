@@ -10,20 +10,19 @@ import (
 )
 
 type (
+	TeaName string
+
 	Config struct {
 		Tea Tea `yaml:"tea"`
 	}
-	Username string
-	UserItem *oauth2.Token
-	User     map[Username]UserItem
 
-	TeaName string
-	TeaItem struct {
-		Name string `yaml:"name"`
-		Host string `yaml:"host,omitempty"`
-		User User   `yaml:"user,omitempty"`
-	}
 	Tea map[TeaName]TeaItem
+
+	TeaItem struct {
+		Name  string        `yaml:"name"`
+		Host  string        `yaml:"host,omitempty"`
+		Token *oauth2.Token `yaml:"token"`
+	}
 )
 
 var (
@@ -46,8 +45,8 @@ func (t TeaItem) String() string {
 	return fmt.Sprintf(`
 	Name: %s
 	Host: %s
-	User: %+v
-`, t.Name, t.Host, t.User)
+	Token: %+v
+`, t.Name, t.Host, t.Token)
 }
 
 func (t Tea) String() string {

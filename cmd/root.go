@@ -127,7 +127,8 @@ func initConfig() {
 				pkgErr.Check(err)
 				viper.SetDefault("tea", config.Tea{
 					config.Default: config.TeaItem{
-						User: map[config.Username]config.UserItem{},
+						Name: string(config.Default),
+						Host: "https://gitea.com",
 					},
 				})
 				log.Debugf("using config file: %s", cfgFile)

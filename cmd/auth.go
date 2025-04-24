@@ -34,10 +34,9 @@ import (
 
 	"code.gitea.io/sdk/gitea"
 	"github.com/charmbracelet/log"
+	"github.com/hiifong/gh-tea/pkg/config"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
-
-	"github.com/hiifong/gh-tea/pkg/config"
 )
 
 func init() {
@@ -121,8 +120,7 @@ func loginRun(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	log.Infof("info: %+v", info)
-	v.User = make(map[config.Username]config.UserItem)
-	v.User[config.Username(info.UserName)] = token
+	v.Token = token
 	if isDefault {
 		cfg.Tea[config.TeaName(v.Name)] = v
 	} else {
